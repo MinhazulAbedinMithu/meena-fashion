@@ -9,13 +9,53 @@ const getAllProducts = async (req, res) => {
 	}
 };
 
-const getSingleProduct = (req, res) => {
-  try {
-    
-  } catch (error) {
-    res.status(500)
-  }
-}
+const getSingleProduct = async (req, res) => {
+	const { id } = req.params;
+	try {
+		const singleProduct = await ProductSchema.find({ _id: id });
+		if (!singleProduct) {
+			res.status(400).json({ message: "Product Not Found." });
+		}
+		res.status(200).json(singleProduct);
+	} catch (error) {
+		res.status(500).json({ message: error });
+	}
+};
+
+const updateProduct = async (req, res) => {
+	const { id } = req.params;
+	try {
+		const updatedProduct = await ProductSchema.findOneAndUpdate(
+			{ _id: id },
+			req.body,
+			{
+				new: true,
+				runValidators: true,
+			}
+		);
+		if (!updatedProduct) {
+			res.status(400).json({ message: "Please insert updated data." });
+		}
+		res.status(200).json({ updatedProduct });
+	} catch (error) {
+		res.status(500).json({ message: error });
+	}
+};
+
+const deleteProduct = async (req, res) => {
+	const { id } = req.params;
+	try {
+		const deletedProduct = await ProductSchema.findOneAndDelete({ _id: id });
+		if (!deletedProduct) {
+			res.status(400).json({ message: "Something went wrong!" });
+		}
+		res.status(200).json({
+			message: `Product: ${deletedProduct.name} deleted Successfully.`,
+		});
+	} catch (error) {
+		res.status(500).json({ message: error });
+	}
+};
 
 const createProduct = async (req, res) => {
 	try {
@@ -26,6 +66,10 @@ const createProduct = async (req, res) => {
 	}
 };
 
-
-
-module.exports = { getAllProducts, createProduct };
+module.exports = {
+	getAllProducts,
+	createProduct,
+	getSingleProduct,
+	updateProduct,
+	deleteProduct,
+};
